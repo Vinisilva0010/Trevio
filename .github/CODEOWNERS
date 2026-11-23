@@ -1,0 +1,11 @@
+# Later matches win, so the specific rules stay at the bottom.
+*                   @Vinisilva0010
+
+# app/ frontend owner: TBD (the designer). Add their handle on the next line
+# once known, e.g. `/app/  @Vinisilva0010 @designer-handle`.
+/app/               @Vinisilva0010
+
+# Key handling, login and the API client always need the CTO, whoever owns app/.
+/app/src/wallet/    @Vinisilva0010
+/app/src/auth/      @Vinisilva0010
+/app/src/api/       @Vinisilva0010

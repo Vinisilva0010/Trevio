@@ -1,0 +1,7 @@
+# Pinned to the stable release already installed on the development machine
+# and used by CI, so builds are reproducible and nothing is downloaded
+# unexpectedly. Bump deliberately, in its own PR.
+[toolchain]
+channel = "1.100.0"
+profile = "minimal"
+components = ["rustfmt", "clippy"]

@@ -1,0 +1,93 @@
+openapi: 3.1.0
+info:
+  title: Trevio API
+  version: 0.1.0
+  summary: Backend API of the Trevio self-custodial wallet.
+  description: |
+    This file is the source of truth for the HTTP contract. The server and the
+    app are both built against it. See contracts/README.md.
+servers:
+  - url: http://127.0.0.1:8080
+    description: Local development
+tags:
+  - name: operations
+    description: Process health, for orchestrators and monitoring.
+paths:
+  /health:
+    get:
+      tags: [operations]
+      operationId: getHealth
+      summary: Liveness probe
+      description: Answers as long as the process serves HTTP. Touches no dependency.
+      security: []
+      responses:
+        "200":
+          description: The process is alive.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+              example:
+                status: ok
+  /ready:
+    get:
+      tags: [operations]
+      operationId: getReady
+      summary: Readiness probe
+      description: Answers 200 only if the database accepts a trivial query within a short timeout.
+      security: []
+      responses:
+        "200":
+          description: The service can do useful work.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Status"
+              example:
+                status: ready
+        "503":
+          description: A dependency is unavailable or did not answer in time.
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+              example:
+                type: "urn:trevio:problem:not-ready"
+                title: Service Not Ready
+                status: 503
+                detail: A required dependency is unavailable. Try again later.
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: opaque
+      description: |
+        Declared for future endpoints. No operation uses it yet; the login
+        design is still pending review.
+  schemas:
+    Status:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          examples: [ok]
+    Problem:
+      type: object
+      description: Error body, RFC 9457 problem details (application/problem+json).
+      required: [type, title, status, detail]
+      properties:
+        type:
+          type: string
+          format: uri
+          description: Stable identifier of the problem kind. Branch on this, not on `title` or `detail`.
+        title:
+          type: string
+        status:
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          type: string
+          description: Human-readable, safe to show. Never contains internal details.

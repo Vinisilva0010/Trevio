@@ -1,0 +1,4 @@
+# Lint rules for openapi.yaml. Starts from the lenient "minimal" ruleset;
+# tighten it once the API has real endpoints.
+extends:
+  - minimal

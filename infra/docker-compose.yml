@@ -1,0 +1,31 @@
+# LOCAL DEVELOPMENT ONLY. Never use this file, or these settings, in staging
+# or production.
+#
+# Credentials have no defaults on purpose: `:?` makes compose fail loudly if a
+# variable is missing, so nobody ends up running with a guessable password.
+name: trevio-dev
+
+services:
+  postgres:
+    image: postgres:18
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:?set POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:?set POSTGRES_DB}
+    ports:
+      # Loopback only: the database must not be reachable from the network.
+      - "127.0.0.1:5432:5432"
+    volumes:
+      # Postgres 18 images keep data in a version-specific directory under
+      # /var/lib/postgresql, so mount the parent.
+      - trevio_pgdata:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$$POSTGRES_USER\" -d \"$$POSTGRES_DB\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+
+volumes:
+  trevio_pgdata:
